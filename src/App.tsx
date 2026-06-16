@@ -1117,7 +1117,7 @@ function ContactSection() {
   };
 
   const contactChips = [
-    ["WhatsApp & Call", "+91 89212 33005", "https://wa.me/918921233005", "chat"],
+    ["WhatsApp/Call", "+91 89212 33005", "https://wa.me/918921233005", "chat"],
     ["Email", "hello@thinkinenglish.in", "mailto:hello@thinkinenglish.in", "mail"]
   ] as const;
 
@@ -1147,32 +1147,7 @@ function ContactSection() {
 
               <div className="mt-8 flex flex-wrap gap-3">
                 {contactChips.map(([label, value, href, icon]) => {
-                  if (label === "WhatsApp & Call") {
-                    return (
-                      <div key={label} className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-                        <motion.a
-                          href="https://wa.me/918921233005"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex min-h-12 w-full items-center gap-3 rounded-full border border-border/30 bg-white/10 px-6 py-4 text-sm font-semibold text-white sm:w-auto"
-                        >
-                          <span className="rounded-full bg-white/12 p-2">
-                            <Icon path={icons.chat} className="h-4 w-4" />
-                          </span>
-                          <span>WhatsApp: {value}</span>
-                        </motion.a>
-                        <motion.a
-                          href="tel:+918921233005"
-                          className="inline-flex min-h-12 w-full items-center gap-3 rounded-full border border-border/30 bg-white/10 px-6 py-4 text-sm font-semibold text-white sm:w-auto"
-                        >
-                          <span className="rounded-full bg-white/12 p-2">
-                            <Icon path={icons.phone} className="h-4 w-4" />
-                          </span>
-                          <span>Call: {value}</span>
-                        </motion.a>
-                      </div>
-                    );
-                  }
+
                   return (
                     <motion.a
                       key={label}
