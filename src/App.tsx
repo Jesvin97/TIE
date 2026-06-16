@@ -391,7 +391,7 @@ function Hero() {
   const yParticle = useTransform(scrollY, [0, 500], [0, 24]);
 
   return (
-    <section className="relative overflow-hidden pb-10 pt-28 md:pb-16 md:pt-32 bg-navy">
+    <section className="relative overflow-hidden pb-6 pt-20 md:pb-10 md:pt-24 bg-navy">
       <motion.div
         animate={
           isE2E
@@ -427,7 +427,7 @@ function Hero() {
 
       <div className={`relative ${pageContainer} grid items-center gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-14`}>
         <motion.div initial="hidden" animate="show" variants={stagger} className="relative z-10">
-          <motion.div variants={fadeUp} className="mb-6 border-t-2 border-white/20 pt-4 max-w-[280px]">
+          <motion.div variants={fadeUp} className="mb-3 border-t border-white/20 pt-2 max-w-[280px]">
             <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-white/70">
               Founder-led mentoring &bull; Live online
             </p>
@@ -441,19 +441,11 @@ function Hero() {
             <span className="block mt-1 text-gold">clarity and confidence.</span>
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="mt-5 max-w-2xl text-base leading-7 text-white/70 md:text-lg">
-            You probably don't need a big institute or another generic textbook to get better. You just need someone to sit across from you, hear exactly where you stumble, and correct it right then and there. Whether you need a specific IELTS score or you just want to stop translating everything in your head before you speak - I'll just work with you until it finally clicks.
+          <motion.p variants={fadeUp} className="mt-4 max-w-2xl text-base leading-7 text-white/70 md:text-[1.05rem]">
+            You don't need a generic institute. You just need someone to hear where you stumble and fix it live. We offer highly personalized online coaching for IELTS, PTE, CELPIP, Duolingo, LanguageCert, and career English, focused entirely on removing your specific hesitation blocks.
           </motion.p>
 
-          <motion.p variants={fadeUp} className="mt-5 max-w-2xl text-sm leading-7 text-white/62 md:text-base">
-            This coaching is built for IELTS, PTE, CELPIP, Duolingo, LanguageCert, interview preparation, and day-to-day professional English. The focus is always the same: remove the exact hesitation points that are affecting your score, your confidence, or your clarity.
-          </motion.p>
-
-          <motion.p variants={fadeUp} className="mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-white/50">
-            We're just fixing the hesitation
-          </motion.p>
-
-          <motion.div variants={fadeUp} className="mt-5 flex flex-wrap items-center gap-3 text-sm font-semibold text-white/80">
+          <motion.div variants={fadeUp} className="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold text-white/80">
             {["Live Classes", "Flexible Timings", "Personal Guidance"].map((item, index) => (
               <span key={item} className="flex items-center gap-3">
                 {item}
@@ -462,11 +454,10 @@ function Hero() {
             ))}
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+          <motion.div variants={fadeUp} className="mt-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <motion.a
-
               whileTap={{ scale: 0.99 }}
-              href="#contact"
+              href="#format"
               className="gold-glow inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-bold text-navy shadow-sm transition hover:bg-white/90 sm:min-h-0 sm:w-auto"
             >
               Let's figure out what's holding you back
@@ -484,7 +475,7 @@ function Hero() {
             </motion.a>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-6 grid gap-3 sm:grid-cols-3">
+          <motion.div variants={fadeUp} className="mt-4 grid gap-3 sm:grid-cols-3">
             {heroMetrics.map(([title, copy]) => (
               <div key={title} className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
                 <p className="text-sm font-bold text-white">{title}</p>
@@ -523,7 +514,7 @@ function Hero() {
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className="h-[420px] w-full object-cover md:h-[500px] scale-105"
+                className="h-[340px] w-full object-cover md:h-[400px] scale-105"
               />
               <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-navy/80 to-transparent p-6 pt-24 text-center md:text-left">
                 <p className="text-sm font-bold tracking-widest uppercase text-white/90">
