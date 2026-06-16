@@ -269,12 +269,6 @@ const faqs = [
   ]
 ] as const;
 
-const heroMetrics = [
-  ["Just you and me", "I take your progress personally. Every session, every correction, and every strategy comes directly from me."],
-  ["Live Correction", "We fix issues as you speak"],
-  ["No Crowded Batches", "1:1 and small precision groups"]
-] as const;
-
 const fadeUp = {
   hidden: { opacity: 0, y: 34 },
   show: (delay: number = 0) => ({
@@ -476,14 +470,6 @@ function Hero() {
             </motion.a>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-4 grid gap-3 sm:grid-cols-3">
-            {heroMetrics.map(([title, copy]) => (
-              <div key={title} className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
-                <p className="text-sm font-bold text-white">{title}</p>
-                <p className="mt-2 text-sm leading-6 text-white/70">{copy}</p>
-              </div>
-            ))}
-          </motion.div>
         </motion.div>
 
         <motion.div
