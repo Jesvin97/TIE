@@ -368,8 +368,9 @@ function NavBar() {
             scrolled ? "bg-navy/95 py-2 backdrop-blur-md border-white/10 shadow-sm" : "bg-transparent py-3 border-transparent"
           ].join(" ")}
         >
-          <button onClick={() => window.scrollTo(0, 0)} className="font-serif text-2xl tracking-[0.01em] transition-colors text-white hover:opacity-80" aria-label="Think in English - Home">
-            <span className="text-gold">Think</span> in English
+          <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-3 font-serif text-2xl tracking-[0.01em] transition-colors text-white hover:opacity-80" aria-label="Think in English - Home">
+            <img src="/logo.png" alt="Think in English Logo" className="h-10 w-auto object-contain rounded-md" />
+            <span><span className="text-gold">Think</span> in English</span>
           </button>
           <nav className="hidden items-center gap-8 md:flex">
             {navItems.map(([label, href]) => (
@@ -1252,8 +1253,9 @@ function Footer() {
       <div className={pageContainer}>
         <div className="grid gap-8 md:grid-cols-2 items-center">
           <div>
-            <button onClick={() => window.scrollTo(0, 0)} className="font-serif text-2xl text-white hover:opacity-80" aria-label="Think in English - Home">
-              <span className="text-gold">Think</span> in English
+            <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-3 font-serif text-2xl text-white hover:opacity-80" aria-label="Think in English - Home">
+              <img src="/logo.png" alt="Think in English Logo" className="h-10 w-auto object-contain rounded-md" />
+              <span><span className="text-gold">Think</span> in English</span>
             </button>
             <p className="mt-2 text-sm text-white/70">Unravel your journey of English</p>
             <div className="mt-4 text-xs leading-6 text-white/50">
