@@ -391,7 +391,7 @@ function Hero() {
   const yParticle = useTransform(scrollY, [0, 500], [0, 24]);
 
   return (
-    <section className="relative overflow-hidden pb-12 pt-36 md:pb-20 md:pt-40 bg-navy">
+    <section className="relative overflow-hidden pb-10 pt-28 md:pb-16 md:pt-32 bg-navy">
       <motion.div
         animate={
           isE2E
@@ -427,7 +427,7 @@ function Hero() {
 
       <div className={`relative ${pageContainer} grid items-center gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-14`}>
         <motion.div initial="hidden" animate="show" variants={stagger} className="relative z-10">
-          <motion.div variants={fadeUp} className="mb-10 border-t-2 border-white/20 pt-4 max-w-[280px]">
+          <motion.div variants={fadeUp} className="mb-6 border-t-2 border-white/20 pt-4 max-w-[280px]">
             <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-white/70">
               Founder-led mentoring &bull; Live online
             </p>
@@ -441,7 +441,7 @@ function Hero() {
             <span className="block mt-1 text-gold">clarity and confidence.</span>
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="mt-8 max-w-2xl text-base leading-8 text-white/70 md:text-xl">
+          <motion.p variants={fadeUp} className="mt-5 max-w-2xl text-base leading-7 text-white/70 md:text-lg">
             You probably don't need a big institute or another generic textbook to get better. You just need someone to sit across from you, hear exactly where you stumble, and correct it right then and there. Whether you need a specific IELTS score or you just want to stop translating everything in your head before you speak - I'll just work with you until it finally clicks.
           </motion.p>
 
@@ -462,7 +462,7 @@ function Hero() {
             ))}
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+          <motion.div variants={fadeUp} className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <motion.a
 
               whileTap={{ scale: 0.99 }}
@@ -484,7 +484,7 @@ function Hero() {
             </motion.a>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-8 grid gap-3 sm:grid-cols-3">
+          <motion.div variants={fadeUp} className="mt-6 grid gap-3 sm:grid-cols-3">
             {heroMetrics.map(([title, copy]) => (
               <div key={title} className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
                 <p className="text-sm font-bold text-white">{title}</p>
@@ -523,7 +523,7 @@ function Hero() {
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className="h-[520px] w-full object-cover md:h-[620px] scale-105"
+                className="h-[420px] w-full object-cover md:h-[500px] scale-105"
               />
               <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-navy/80 to-transparent p-6 pt-24 text-center md:text-left">
                 <p className="text-sm font-bold tracking-widest uppercase text-white/90">
