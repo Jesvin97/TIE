@@ -420,14 +420,8 @@ function Hero() {
         <span className="absolute right-[12%] top-[44%] h-1.5 w-1.5 rounded-full bg-white/20" />
       </motion.div>
 
-      <div className={`relative ${pageContainer} grid items-center gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-14`}>
+      <div className={`relative ${pageContainer} grid items-start gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-14`}>
         <motion.div initial="hidden" animate="show" variants={stagger} className="relative z-10">
-          <motion.div variants={fadeUp} className="mb-3 border-t border-white/20 pt-2 max-w-[280px]">
-            <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-white/70">
-              Founder-led mentoring &bull; Live online
-            </p>
-          </motion.div>
-
           <motion.h1
             variants={fadeUp}
             className="text-balance max-w-3xl font-serif text-[2.55rem] leading-[1.02] tracking-[-0.02em] text-white sm:text-[3.2rem] lg:text-[5.5rem]"
