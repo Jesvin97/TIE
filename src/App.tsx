@@ -31,7 +31,7 @@ type IconName =
 type SectionIntroProps = Readonly<{
   eyebrow: string;
   title: string;
-  copy: string;
+  copy?: React.ReactNode;
   align?: "left" | "center";
   narrow?: boolean;
   eyebrowClass: string;
@@ -74,7 +74,7 @@ type FormatCard = {
   icon: IconName;
 };
 
-const pageContainer = "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8";
+const pageContainer = "mx-auto max-w-7xl px-5 sm:px-6 lg:px-8";
 const sectionSpacing = "py-16 sm:py-24";
 
 const icons: Record<IconName, string> = {
@@ -137,14 +137,25 @@ const whyItems: WhyItem[] = [
     title: "I actually look at your essays and rewrite them with you.",
     copy: "I don't just give you a band score. I take your paragraph, show you exactly why it feels clumsy, and we rewrite it live so you understand the logic behind the score.",
     icon: "layers",
-    tone: "bg-[var(--soft-cream)]",
-    featured: true
+    tone: "bg-[var(--soft-cream)]"
   },
   {
     title: "Built around your chaotic adult schedule.",
     copy: "Whether you're finishing college, managing a 9-to-5, or juggling a family - this isn't a rigid school. We find timings that let you remain consistent without burning out.",
     icon: "clock",
     tone: "bg-[#EEF3ED]"
+  },
+  {
+    title: "Who we train",
+    copy: "12th graduates preparing for college admissions; working professionals aiming for career growth; and abroad aspirants preparing for IELTS, PTE, CELPIP, Duolingo, or LanguageCert.",
+    icon: "users",
+    tone: "bg-goldTint"
+  },
+  {
+    title: "Teaching style",
+    copy: "Less lecture, more active guidance, real-time corrections, and custom course design built entirely around the learner's individual level and constraints.",
+    icon: "book",
+    tone: "bg-accent"
   }
 ];
 
@@ -309,30 +320,51 @@ function SectionIntro({
   };
 
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.25 }}
-      variants={stagger}
-      className={computeClassName()}
-    >
-      <motion.p variants={fadeUp} className={`mb-4 text-sm font-extrabold uppercase tracking-[0.22em] ${eyebrowClass}`}>
-        {eyebrow}
-      </motion.p>
-      <motion.h2 variants={fadeUp} className={`text-balance font-serif text-4xl leading-tight md:text-5xl ${titleClass}`}>
-        {title}
-      </motion.h2>
-      {copy ? (
-        <motion.p variants={fadeUp} className={`mt-5 text-base leading-8 md:text-lg ${copyClass}`}>
-          {copy}
+    <header className={computeClassName()}>
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={stagger}
+      >
+        <motion.p variants={fadeUp} className={`mb-4 text-sm font-extrabold uppercase tracking-[0.22em] ${eyebrowClass}`}>
+          {eyebrow}
         </motion.p>
-      ) : null}
-    </motion.div>
+        <motion.h2 variants={fadeUp} className={`text-balance font-serif text-4xl leading-snug md:text-5xl md:leading-tight ${titleClass}`}>
+          {typeof title === "string" && title.includes(". ") ? (
+            title.split(". ").map((sentence, i, arr) => (
+              <span key={i} className={i > 0 ? "block mt-2 md:inline md:mt-0" : ""}>
+                {sentence}{i < arr.length - 1 ? "." : ""}
+                {i < arr.length - 1 ? " " : ""}
+              </span>
+            ))
+          ) : (
+            title
+          )}
+        </motion.h2>
+        {copy ? (
+          <motion.div
+            variants={fadeUp}
+            className={`mt-5 text-base md:text-lg ${copyClass} space-y-4`}
+          >
+            {typeof copy === "string" ? (
+              copy.split("\n").map((para, i) => (
+                <p key={i} className="leading-relaxed">{para}</p>
+              ))
+            ) : (
+              copy
+            )}
+          </motion.div>
+        ) : null}
+      </motion.div>
+    </header>
   );
 }
 
 function NavBar() {
   const [scrolled, setScrolled] = useState<boolean>(false);
+  const [hideHeader, setHideHeader] = useState<boolean>(false);
+  const [activeSection, setActiveSection] = useState<string>("");
 
   useEffect(() => {
     let frame = 0;
@@ -340,6 +372,8 @@ function NavBar() {
       cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
         setScrolled(window.scrollY > 18);
+        const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 160;
+        setHideHeader(isBottom);
       });
     };
     onScroll();
@@ -350,30 +384,97 @@ function NavBar() {
     };
   }, []);
 
+  useEffect(() => {
+    const sections = ["about", "courses", "format", "testimonials", "faq"];
+    const observerOptions = {
+      root: null,
+      rootMargin: "-25% 0px -65% 0px",
+      threshold: 0,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(`#${entry.target.id}`);
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    // Reset active link if scrolled near the top (Hero section)
+    const handleScroll = () => {
+      if (window.scrollY < 200) {
+        setActiveSection("");
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      sections.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) observer.unobserve(el);
+      });
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <motion.header
-      animate={{ paddingTop: scrolled ? 8 : 18, paddingBottom: scrolled ? 8 : 18 }}
+      animate={{ 
+        paddingTop: scrolled ? 6 : 12, 
+        paddingBottom: scrolled ? 6 : 12,
+        y: hideHeader ? -80 : 0
+      }}
+      transition={{ duration: 0.3 }}
       className="fixed inset-x-0 top-0 z-50 transition-colors duration-300"
     >
       <div className={pageContainer}>
         <div
           className={[
             "flex items-center justify-between rounded-full border px-4 transition-all duration-300 md:px-6",
-            scrolled ? "bg-navy/95 py-2 backdrop-blur-md border-white/10 shadow-sm" : "bg-transparent py-3 border-transparent"
+            scrolled ? "bg-white/8 py-1.5 backdrop-blur-lg border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.4)]" : "bg-transparent py-2.5 border-transparent"
           ].join(" ")}
         >
-          <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-3 font-serif text-2xl tracking-[0.01em] transition-colors text-white hover:opacity-80" aria-label="Think in English - Home">
-            <img src="/logo.png" alt="Think in English Logo" className="h-14 w-auto object-contain rounded-md" />
-            <span><span className="text-gold">Think</span> in English</span>
+          <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-3.5 sm:gap-4.5 font-serif text-3xl sm:text-[32px] md:text-[40px] font-semibold md:font-bold tracking-[0.01em] transition-colors text-white hover:opacity-80" aria-label="Think in English - Home">
+            <img src="/logo_transparent.png" alt="Think in English Logo" className="h-[72px] w-[72px] sm:h-[80px] sm:w-[80px] md:h-[96px] md:w-[96px] object-contain rounded-md flex-shrink-0" />
+            <span><span className="text-gold">Think</span><span className="hidden min-[400px]:inline"> in English</span></span>
           </button>
-          <nav className="hidden items-center gap-8 md:flex">
-            {navItems.map(([label, href]) => (
-              <a key={label} href={href} className="group relative text-sm font-semibold transition-colors text-white/80 hover:text-white">
-                <span className="inline-block transition-transform duration-300 group-hover:-translate-y-0.5">{label}</span>
-                <span className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 bg-white" />
-              </a>
-            ))}
-          </nav>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <nav className="hidden items-center gap-8 md:flex">
+              {navItems.map(([label, href]) => {
+                const isActive = activeSection === href;
+                return (
+                  <a
+                    key={label}
+                    href={href}
+                    className={[
+                      "group relative text-sm font-semibold transition-colors",
+                      isActive ? "text-gold" : "text-white/80 hover:text-white"
+                    ].join(" ")}
+                  >
+                    <span className="inline-block transition-transform duration-300 group-hover:-translate-y-0.5">{label}</span>
+                    <span
+                      className={[
+                        "absolute -bottom-1 left-0 h-px w-full origin-center transition-transform duration-300",
+                        isActive ? "scale-x-100 bg-gold" : "scale-x-0 group-hover:scale-x-100 bg-white"
+                      ].join(" ")}
+                    />
+                  </a>
+                );
+              })}
+            </nav>
+            <motion.a
+              whileTap={{ scale: 0.96 }}
+              href="#contact"
+              className="inline-flex h-9 sm:h-10 items-center justify-center rounded-full bg-gold px-3.5 sm:px-5 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:bg-gold/90 hover:shadow-[0_4px_12px_rgba(182,144,99,0.25)]"
+            >
+              Book Demo
+            </motion.a>
+          </div>
         </div>
       </div>
     </motion.header>
@@ -383,10 +484,8 @@ function NavBar() {
 function Hero() {
   const { scrollY } = useScroll();
   const yImage = useTransform(scrollY, [0, 500], [0, 40]);
-  const yParticle = useTransform(scrollY, [0, 500], [0, 24]);
-
   return (
-    <section className="relative overflow-hidden pb-6 pt-20 md:pb-10 md:pt-24 bg-navy">
+    <section className="relative overflow-hidden pb-6 pt-20 md:pb-8 md:pt-24 lg:pt-28 bg-navy">
       <motion.div
         animate={
           isE2E
@@ -398,7 +497,7 @@ function Hero() {
              ? { duration: 0 }
             : { duration: 8, repeat: Infinity, ease: "easeInOut" }
         }
-        className="absolute left-[-12%] top-16 h-72 w-72 rounded-full bg-goldTint/50 blur-3xl"
+        className="pointer-events-none select-none absolute left-[-12%] top-16 h-72 w-72 rounded-full bg-goldTint/50 blur-3xl"
       />
       <motion.div
         animate={
@@ -411,20 +510,14 @@ function Hero() {
              ? { duration: 0 }
             : { duration: 9.5, repeat: Infinity, ease: "easeInOut" }
         }
-        className="absolute right-[-8%] top-20 h-80 w-80 rounded-full bg-navy/80 blur-3xl"
+        className="pointer-events-none select-none absolute right-[-8%] top-20 h-80 w-80 rounded-full bg-navy/80 blur-3xl"
       />
-      <motion.div style={isE2E ? undefined : { y: yParticle }} className="absolute inset-0 hidden md:block">
-        <span className="absolute left-[10%] top-[22%] h-2.5 w-2.5 rounded-full bg-gold/40 blur-[1px]" />
-        <span className="absolute left-[19%] top-[34%] h-1.5 w-1.5 rounded-full bg-white/20" />
-        <span className="absolute right-[16%] top-[24%] h-3 w-3 rounded-full bg-goldTint/70 blur-[1px]" />
-        <span className="absolute right-[12%] top-[44%] h-1.5 w-1.5 rounded-full bg-white/20" />
-      </motion.div>
 
       <div className={`relative ${pageContainer} grid items-start gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-14`}>
         <motion.div initial="hidden" animate="show" variants={stagger} className="relative z-10">
           <motion.h1
             variants={fadeUp}
-            className="text-balance max-w-3xl font-serif text-[2.55rem] leading-[1.02] tracking-[-0.02em] text-white sm:text-[3.2rem] lg:text-[5.5rem]"
+            className="text-balance max-w-3xl font-serif text-[2.55rem] leading-[1.02] tracking-[-0.02em] text-white sm:text-[3rem] lg:text-[4.8rem]"
           >
             Speak English with
             <span className="block mt-1 text-gold">clarity and confidence.</span>
@@ -446,21 +539,11 @@ function Hero() {
           <motion.div variants={fadeUp} className="mt-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <motion.a
               whileTap={{ scale: 0.99 }}
-              href="#format"
+              href="#contact"
               className="gold-glow inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-bold text-navy shadow-sm transition hover:bg-white/90 sm:min-h-0 sm:w-auto"
             >
-              Let's figure out what's holding you back
+              Get Your Roadmap
               <Icon path={icons.arrow} className="h-4 w-4" />
-            </motion.a>
-            <motion.a
-
-              href="https://wa.me/918921233005"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white/10 sm:min-h-0 sm:w-auto"
-            >
-              Or just drop me a quick text
-              <Icon path={icons.chat} className="h-4 w-4" />
             </motion.a>
           </motion.div>
 
@@ -472,49 +555,52 @@ function Hero() {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
           className="relative"
         >
-          <motion.div
+          <motion.a
+            href="#format"
             style={isE2E ? undefined : { y: yImage }}
             whileHover={isE2E ? undefined : { scale: 1.01, rotate: -0.5 }}
-            className="relative mx-auto max-w-[560px] rounded-xl border border-white/10 bg-white/5 p-4 shadow-2xl origin-bottom"
+            className="block relative mx-auto max-w-[560px] rounded-xl border border-white/10 bg-white/5 p-4 shadow-2xl origin-bottom transition-all duration-300 hover:border-gold/30 hover:shadow-[0_24px_48px_rgba(173,151,89,0.12)] cursor-pointer group/card"
           >
-            <div className="absolute -left-7 top-12 hidden h-52 w-40 rounded-xl border border-white/10 bg-white/5 lg:block rotate-3" />
-            <div className="absolute -right-6 bottom-10 hidden h-48 w-36 rounded-xl border border-white/10 bg-white/5 lg:block" />
+            <div className="absolute -left-4 top-4 -z-10 hidden h-full w-full rounded-xl border border-white/10 bg-white/5 lg:block" />
             <div className="relative overflow-hidden rounded-xl">
               <div className="absolute inset-0 z-10 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
               <img
-                src="https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?auto=format&fit=crop&w=1100&q=70"
+                src="https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1100&q=70"
                 srcSet="
-                  https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?auto=format&fit=crop&w=640&q=70 640w,
-                  https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?auto=format&fit=crop&w=960&q=70 960w,
-                  https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?auto=format&fit=crop&w=1280&q=70 1280w
+                  https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=640&q=70 640w,
+                  https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=960&q=70 960w,
+                  https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1280&q=70 1280w
                 "
                 sizes="(max-width: 1024px) 100vw, 560px"
-                alt="Founder mentor of Think in English"
+                alt="Founder mentor of Think in English during a session"
                 width={1200}
                 height={1440}
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className="h-[340px] w-full object-cover md:h-[400px] scale-105"
+                className="h-[340px] w-full object-cover md:h-[400px] scale-105 transition-transform duration-700 group-hover/card:scale-110"
               />
-              <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-navy/80 to-transparent p-6 pt-24 text-center md:text-left">
+              <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-navy/80 to-transparent p-6 pt-24 text-left">
                 <p className="text-sm font-bold tracking-widest uppercase text-white/90">
                   Teaching doesn't happen without trust.
                 </p>
               </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-4">
+            <div className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-4 text-left">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-white/50">Learning Model</p>
+                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-white/75">Learning Model</p>
                 <p className="mt-1 text-sm font-bold text-white">Live classes / 1:1 & Group options</p>
               </div>
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-white/50">Student Trust</p>
-                <p className="mt-1 text-sm font-bold text-white whitespace-nowrap">Rigorous, measured progress</p>
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-white/75">Student Trust</p>
+                <div className="mt-1 flex items-center gap-1.5 text-sm font-bold text-white">
+                  <span>Rigorous, measured progress</span>
+                  <span className="text-gold transition-transform duration-300 group-hover/card:translate-x-1">&rarr;</span>
+                </div>
               </div>
             </div>
-          </motion.div>
+          </motion.a>
         </motion.div>
       </div>
     </section>
@@ -524,7 +610,7 @@ function Hero() {
 function TrustStrip() {
   const list: TrustItem[] = trustItems;
   return (
-    <section className="pt-24 md:pt-32 pb-10">
+    <section className="pt-16 md:pt-20 pb-8">
       <div className={`${pageContainer}`}>
         <div className="border-b border-white/10 pb-6">
           <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-white/50">What you can expect</p>
@@ -555,8 +641,8 @@ function TrustStrip() {
 function AboutSection() {
   return (
     <section id="about" className={`section-shell ${sectionSpacing}`}>
-      <div className={`relative ${pageContainer} grid gap-14 lg:grid-cols-[1.25fr_0.75fr] items-start`}>
-        <div className="relative z-10 lg:-mr-12">
+      <div className={`relative ${pageContainer} grid gap-14 lg:grid-cols-[1.1fr_0.9fr] items-start`}>
+        <div className="relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -568,13 +654,18 @@ function AboutSection() {
               My <br />
               <span className="text-gold italic">Philosophy.</span>
             </h2>
-            <div className="mt-8 border-l-[3px] border-white/20 pl-6 md:mt-10 md:pl-8">
-              <p className="text-xl font-medium text-white md:text-[1.35rem]">
-                You can't lecture someone into fluency.
+            <div className="mt-8 border-l-[3px] border-gold/40 pl-6 md:mt-10 md:pl-8">
+              <p className="font-serif text-2xl md:text-3xl italic font-medium text-gold">
+                &ldquo;You can't lecture someone into fluency.&rdquo;
               </p>
-              <p className="mt-5 max-w-xl text-[1.05rem] leading-[1.8] text-white text-justify">
-                Fluency isn’t about memorizing rules—it’s about moving past hesitation and nerves to express ideas clearly. Instead of traditional lectures, this coaching focuses on real-time practice and instant feedback tailored to your goals, whether you are preparing for IELTS, an interview, or workplace communication. By identifying your specific speech patterns and correcting them on the spot, the program builds the genuine confidence needed to handle real-world pressure.
-              </p>
+              <div className="mt-6 max-w-xl text-[1.05rem] leading-[1.9] text-white/80 space-y-5 text-left">
+                <p>
+                  Fluency isn’t about memorizing rules—it’s about moving past hesitation and nerves to express ideas clearly. Instead of traditional lectures, this coaching focuses on real-time practice and instant feedback tailored to your goals, whether you are preparing for IELTS, an interview, or workplace communication.
+                </p>
+                <p>
+                  By identifying your specific speech patterns and correcting them on the spot, the program builds the genuine confidence needed to handle real-world pressure.
+                </p>
+              </div>
             </div>
           </motion.div>
 
@@ -588,7 +679,7 @@ function AboutSection() {
             {aboutStats.map((item) => (
               <motion.article key={item.value} variants={fadeUp} className="rounded-none border-t border-white/10 pt-6 pb-4">
                 <p className="font-serif text-[1.35rem] leading-tight text-white">{item.value}</p>
-                <p className="mt-3 text-sm leading-7 text-white">{item.note}</p>
+                <p className="mt-3 text-base leading-relaxed text-white">{item.note}</p>
               </motion.article>
             ))}
           </motion.div>
@@ -632,29 +723,6 @@ function AboutSection() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-[1.2fr_.8fr]">
-            <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
-              <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-white/50">Who we train</p>
-              <ul className="mt-5 space-y-4 text-sm leading-7 text-white/80">
-                {[
-                  "12th graduates preparing for higher studies, interviews, and admissions.",
-                  "Working professionals who need confident spoken English for career growth.",
-                  "Abroad aspirants preparing for IELTS, PTE, CELPIP, Duolingo, and LanguageCert."
-                ].map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-gold" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
-              <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-white/50">Teaching style</p>
-              <p className="mt-4 text-lg font-semibold leading-8 text-white">
-                Less lecture. More guidance, speaking correction, and course design built around the learner.
-              </p>
-            </div>
-          </div>
         </motion.div>
       </div>
     </section>
@@ -668,16 +736,14 @@ function WhySection() {
         <SectionIntro
           eyebrow="My Approach"
           title="Premium without feeling distant. Personal without feeling casual."
-          copy="I don't believe in running a factory. The coaching is designed to feel dependable and distinctly human. That means honest feedback and a clear sense of progress. Every session is led directly by the founder, ensuring consistent quality and personalized attention. We focus on practical communication skills that transfer directly to real-world situations, whether you're preparing for international exams or professional presentations."
+          copy={"I don't believe in running a factory. The coaching is designed to feel dependable and distinctly human. That means honest feedback and a clear sense of progress.\nEvery session is led directly by the founder, ensuring consistent quality and personalized attention. We focus on practical communication skills that transfer directly to real-world situations, whether you're preparing for international exams or professional presentations."}
           titleClass="text-white"
           eyebrowClass="text-white/50"
           copyClass="text-white"
         />
 
-        <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {whyItems.map((item, index) => {
-            const isWide = index === 0 || index === 3;
-            const spanClass = isWide ? "md:col-span-2 xl:col-span-2" : "col-span-1";
             return (
               <motion.article
                 key={item.title}
@@ -685,25 +751,16 @@ function WhySection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: index * 0.08 }}
-
-                className={[
-                  "group flex flex-col justify-between gap-8 rounded-xl border border-white/10 bg-white/5 p-8 sm:p-10 shadow-[0_12px_40px_rgba(0,0,0,0.1)] backdrop-blur-md transition-all",
-                  spanClass,
-                  isWide ? "lg:flex-row lg:items-center" : ""
-                ].join(" ")}
+                className="group flex flex-col justify-between gap-8 rounded-xl border border-white/10 bg-white/5 p-8 sm:p-10 shadow-[0_12px_36px_rgba(1,30,40,0.5)] backdrop-blur-md transition-all hover:border-gold/30 hover:shadow-[0_16px_40px_rgba(173,151,89,0.1)]"
               >
                 <div>
-                  <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 text-gold shadow-sm transition-transform duration-500 group-hover:scale-110">
+                  <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-sky/20 text-gold shadow-sm transition-transform duration-500 group-hover:scale-110">
                     <Icon path={icons[item.icon]} className="h-7 w-7" />
                   </div>
                   <h3 className="text-2xl font-serif leading-tight text-white lg:text-[1.8rem]">{item.title}</h3>
                 </div>
-                <div className={isWide ? "lg:max-w-md" : ""}>
-                  <p className="text-sm leading-8 text-white md:text-base">{item.copy}</p>
-                  <div className="mt-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-white/50">
-                    <span className="h-px w-10 bg-gold/50" />
-
-                  </div>
+                <div>
+                  <p className="text-base leading-relaxed text-white">{item.copy}</p>
                 </div>
               </motion.article>
             );
@@ -788,7 +845,7 @@ function CourseCard({ course }: Readonly<{ course: Course }>) {
     <motion.article
       variants={cardVariants}
       whileHover="hover"
-      className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-8 shadow-[0_16px_50px_rgba(0,0,0,0.1)] hover:shadow-[0_24px_60px_rgba(0,0,0,0.2)] hover:border-gold/30 transition-all duration-700 flex flex-col cursor-pointer"
+      className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-8 shadow-[0_16px_40px_rgba(1,30,40,0.5)] hover:shadow-[0_24px_48px_rgba(173,151,89,0.12)] hover:border-gold/30 transition-all duration-700 flex flex-col cursor-pointer"
       style={{ transformOrigin: "bottom center" }}
     >
       <motion.div variants={glowVariants} className="absolute inset-0 pointer-events-none z-0">
@@ -806,7 +863,7 @@ function CourseCard({ course }: Readonly<{ course: Course }>) {
       </div>
 
       <h3 className="mt-10 font-serif text-[2rem] leading-tight text-white relative z-10">{course.name}</h3>
-      <p className="mt-5 max-w-md text-sm leading-8 text-white md:text-[0.95rem] relative z-10">{course.outcome}</p>
+      <p className="mt-5 max-w-md text-base leading-relaxed text-white relative z-10">{course.outcome}</p>
 
       <div className="mt-auto relative z-10">
         <p className="mt-10 text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/40">Directed correction</p>
@@ -894,7 +951,7 @@ function FormatSection() {
         <SectionIntro
           eyebrow="Class structure"
           title="We mold the class around your calendar, so you don't burn out."
-          copy="I don't force you into rigid batches. Whether you want intense 1:1 focus or a consistent small group, we figure out a structure that you actually look forward to attending. Every class format is built to keep feedback immediate, progress visible, and practice aligned with your current level."
+          copy={"I don't force you into rigid batches. Whether you want intense 1:1 focus or a consistent small group, we figure out a structure that you actually look forward to attending.\nEvery class format is built to keep feedback immediate, progress visible, and practice aligned with your current level."}
           eyebrowClass="text-white/52"
           titleClass="text-white"
           copyClass="text-white/72"
@@ -911,12 +968,12 @@ function FormatSection() {
                 transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: index * 0.08 }}
                 className="rounded-xl border border-border/30 bg-white/10 p-6 "
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/12 text-[#f3d7b5]">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-sky/20 text-gold">
                   <Icon path={icons[item.icon]} className="h-6 w-6" />
                 </div>
-                <h3 className="mt-8 font-serif text-3xl leading-tight text-white">{item.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-white/72">{item.text}</p>
-                <p className="mt-7 text-sm font-extrabold uppercase tracking-[0.16em] text-white/48">{item.meta}</p>
+                <h3 className="mt-8 font-serif text-2xl leading-tight text-white">{item.title}</h3>
+                <p className="mt-4 text-base leading-relaxed text-white/72">{item.text}</p>
+                <p className="mt-7 text-xs font-extrabold uppercase tracking-[0.16em] text-white/48">{item.meta}</p>
               </motion.article>
             ))}
           </div>
@@ -941,7 +998,7 @@ function FormatSection() {
                   </div>
                   <div>
                     <p className="text-lg font-semibold text-white">{title}</p>
-                    <p className="mt-1 text-sm leading-7 text-white">{copy}</p>
+                    <p className="mt-1 text-base leading-relaxed text-white">{copy}</p>
                   </div>
                 </div>
               ))}
@@ -984,7 +1041,7 @@ function FAQSection() {
 
   return (
     <section id="faq" className={`section-shell ${sectionSpacing}`}>
-      <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
         <SectionIntro
           eyebrow="Clear answers"
           title="Questions people usually ask in the demo class."
@@ -1026,7 +1083,7 @@ function FAQSection() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <div className="px-6 pb-7 text-sm leading-8 text-white md:px-7 md:text-base">{answer}</div>
+                      <div className="px-6 pb-7 text-base leading-relaxed text-white md:px-7">{answer}</div>
                     </motion.div>
                   ) : null}
                 </AnimatePresence>
@@ -1052,51 +1109,35 @@ function ContactSection() {
     setLoading(true);
 
     const formData = new FormData(currentForm);
-    const data = {
-      user_name: formData.get('user_name'),
-      user_phone: formData.get('user_phone'),
-      user_email: formData.get('user_email'),
-      message: formData.get('message'),
-      exam_date: formData.get('exam_date'),
-    };
+    const userName = (formData.get('user_name') || '').toString().trim();
+    const userPhone = (formData.get('user_phone') || '').toString().trim();
+    const userEmail = (formData.get('user_email') || '').toString().trim();
+    const message = (formData.get('message') || '').toString().trim();
+    const examDate = (formData.get('exam_date') || 'Not specified').toString().trim();
 
-    fetch('/api/inquiry', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          return res.json().then((err) => {
-            throw new Error(err.error || 'Server error');
-          });
-        }
-        return res.json();
-      })
-      .then(() => {
-        setLoading(false);
-        setSubmitted(true);
-        currentForm.reset();
-        globalThis.setTimeout(() => setSubmitted(false), 3000);
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.error("FAILED...", error);
-        alert(`Failed to send message: ${error.message}`);
-      });
+    const text = `Hi, I would like to book a demo class. Here are my details:
+- Name: ${userName}
+- WhatsApp: ${userPhone}
+- Email: ${userEmail}
+- Struggling with: ${message}
+- Target Exam Date: ${examDate}`;
+
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/918921233005?text=${encodedText}`;
+
+    setLoading(false);
+    setSubmitted(true);
+    currentForm.reset();
+    globalThis.setTimeout(() => setSubmitted(false), 5000);
+
+    // Open WhatsApp Web/App
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
-  const contactChips = [
-    ["WhatsApp/Call", "+91 89212 33005", "https://wa.me/918921233005", "chat"],
-    ["Email", "hello@thinkinenglish.in", "mailto:hello@thinkinenglish.in", "mail"]
-  ] as const;
-
   const getButtonText = () => {
-    if (loading) return "Sending...";
-    if (submitted) return "I'll be in touch soon";
-    return "Send directly to my inbox";
+    if (loading) return "Redirecting...";
+    if (submitted) return "WhatsApp Chat Opened";
+    return "Send details to WhatsApp";
   };
 
   const getButtonIcon = () => {
@@ -1106,7 +1147,7 @@ function ContactSection() {
   return (
     <section id="contact" className={`section-shell ${sectionSpacing}`}>
       <div className={`relative ${pageContainer}`}>
-        <div className="overflow-hidden rounded-xl border border-border bg-navy shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-white/10 bg-navy shadow-sm">
           <div className="grid gap-0 lg:grid-cols-[.95fr_1.05fr]">
             <div className="p-8 text-white md:p-10 lg:p-12">
               <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-white/52">Contact</p>
@@ -1116,28 +1157,6 @@ function ContactSection() {
               <p className="mt-5 max-w-xl text-base leading-8 text-white/74">
                 Share your goal, target exam, or confidence challenge. We will suggest the most suitable course format and timing instead of pushing a generic batch.
               </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                {contactChips.map(([label, value, href, icon]) => {
-
-                  return (
-                    <motion.a
-                      key={label}
-                      href={href}
-                      target={href.startsWith("http") ? "_blank" : undefined}
-                      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                      className="inline-flex min-h-12 w-full items-center gap-3 rounded-full border border-border/30 bg-white/10 px-6 py-4 text-sm font-semibold text-white sm:w-auto"
-                    >
-                      <span className="rounded-full bg-white/12 p-2">
-                        <Icon path={icons[icon]} className="h-4 w-4" />
-                      </span>
-                      <span>{label}: {value}</span>
-                    </motion.a>
-                  );
-                })}
-              </div>
-
-
             </div>
 
             <div className="bg-navy p-8 md:p-10 lg:p-12 lg:border-l lg:border-white/10">
@@ -1151,27 +1170,28 @@ function ContactSection() {
                 </p>
 
                 <motion.a
-
                   href="https://wa.me/918714278397?text=Hi%2C%20I%20would%20like%20to%20book%20a%20demo%20class.%20Please%20share%20available%20slots."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 flex min-h-12 w-full items-center justify-center gap-3 rounded-full border border-gold bg-white/5 px-8 py-4 text-sm font-bold text-white backdrop-blur-md shadow-[0_12px_30px_rgba(1,54,72,0.08)] transition-all hover:bg-white/10 sm:w-fit"
                 >
                   Message me on WhatsApp
-                  <Icon path={icons.chat} className="h-[18px] w-[18px]" />
+                  <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.004 2c-5.51 0-9.993 4.483-9.993 9.993 0 1.763.457 3.49 1.332 5.016L2 22l5.127-1.346c1.472.802 3.123 1.226 4.877 1.226 5.511 0 9.994-4.483 9.994-9.993C21.998 6.483 17.514 2 12.004 2zm5.244 13.021c-.287.41-.836.758-1.36.953-.41.154-.923.277-2.605-.42-2.144-.892-3.477-3.067-3.58-3.21-.1-.133-.825-1.097-.825-2.092 0-.995.523-1.482.708-1.677.185-.195.4-.246.533-.246.133 0 .267.005.37.01.112.005.266-.046.415.318.154.38.528 1.282.574 1.374.046.092.077.2.015.323-.062.123-.123.195-.19.277-.067.077-.144.17-.205.236-.067.072-.138.15-.06.287.077.133.344.564.738.913.507.451.933.595 1.066.661.133.067.21.057.287-.03.077-.093.333-.39.42-.523.087-.133.175-.113.298-.067.123.046.779.37.913.436.133.066.22.1.251.154.03.05.03.3-.256.713z"/>
+                  </svg>
                 </motion.a>
 
                 <form ref={form} onSubmit={handleSubmit} className="mt-10 grid gap-6">
-                  <p className="flex items-center gap-4 text-sm font-extrabold uppercase tracking-[0.12em] text-white/40">
-                    <span className="flex-1 h-px bg-white/10" />
-                    <span className="mx-3">Or send an email enquiry</span>
-                    <span className="flex-1 h-px bg-white/10" />
+                  <p className="flex items-center gap-4 text-sm font-extrabold uppercase tracking-[0.12em] text-white/65">
+                    <span className="flex-1 h-px bg-white/25" />
+                    <span className="mx-3">Or submit details via WhatsApp form</span>
+                    <span className="flex-1 h-px bg-white/25" />
                   </p>
                   {[
-                    ["Your Name", "text", "How should I address you - ", "user_name"],
+                    ["Your Name", "text", "How should I address you", "user_name"],
                     ["WhatsApp Number", "tel", "So I can reach out directly", "user_phone"],
-                    ["Your Email ID", "email", "So I can send you a mail", "user_email"],
-                    ["What are you struggling with - ", "text", "Example: IELTS Writing or spoken hesitation", "message"]
+                    ["Your Email ID", "email", "To send course details and updates", "user_email"],
+                    ["What are you struggling with?", "text", "Example: IELTS Writing or spoken hesitation", "message"]
                   ].map(([label, type, placeholder, name]) => (
                     <label key={label} className="grid gap-2 text-sm font-bold text-white">
                       {label}
@@ -1181,22 +1201,22 @@ function ContactSection() {
                         placeholder={placeholder}
                         required
                         onInput={name === "user_phone" ? (e) => { e.currentTarget.value = e.currentTarget.value.replace(/[^0-9+]/g, '') } : undefined}
-                        className="rounded-xl border border-white/20 bg-white/5 px-5 py-4 text-sm font-medium text-white placeholder-white/40 outline-none transition-all focus:-translate-y-[2px] focus:border-gold focus:shadow-[0_8px_20px_rgba(182,144,99,0.12)]"
+                        className="rounded-xl border border-white/20 bg-white/8 px-5 py-4 text-sm font-medium text-white placeholder-white/60 outline-none transition-all focus:-translate-y-[2px] focus:border-gold focus:ring-1 focus:ring-gold/30 focus:shadow-[0_8px_20px_rgba(182,144,99,0.18)]"
                       />
                     </label>
                   ))}
 
                   <label className="grid gap-2 text-sm font-bold text-white">
-                    When is your exam - (If applicable)
-                    <textarea
+                    Exam Date (Optional)
+                    <input
                       name="exam_date"
-                      placeholder="Give me an idea of your timeline and constraints."
-                      className="min-h-[120px] rounded-xl border border-white/20 bg-white/5 px-5 py-4 text-sm font-medium text-white placeholder-white/40 outline-none transition-all focus:-translate-y-[2px] focus:border-gold focus:shadow-[0_8px_20px_rgba(182,144,99,0.12)] resize-none"
+                      type="text"
+                      placeholder="Example: August 2026 or No exam planned"
+                      className="rounded-xl border border-white/20 bg-white/8 px-5 py-4 text-sm font-medium text-white placeholder-white/60 outline-none transition-all focus:-translate-y-[2px] focus:border-gold focus:ring-1 focus:ring-gold/30 focus:shadow-[0_8px_20px_rgba(182,144,99,0.18)]"
                     />
                   </label>
 
                   <motion.button
-
                     whileTap={{ scale: 0.99 }}
                     type="submit"
                     disabled={loading || submitted}
@@ -1211,7 +1231,6 @@ function ContactSection() {
                   </motion.button>
                   <p className="text-center text-[13px] font-semibold text-white/50">I personally read and reply within hours.</p>
                 </form>
-
 
               </div>
             </div>
@@ -1229,37 +1248,40 @@ function Footer() {
   ] as const;
 
   return (
-    <footer className="border-t border-white/10 bg-navy py-12">
+    <footer className="border-t border-white/10 bg-navy py-8">
       <div className={pageContainer}>
-        <div className="grid gap-8 md:grid-cols-2 items-center">
+        <div className="grid gap-8 sm:grid-cols-2 items-start text-left">
           <div>
-            <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-3 font-serif text-2xl text-white hover:opacity-80" aria-label="Think in English - Home">
-              <img src="/logo.png" alt="Think in English Logo" className="h-14 w-auto object-contain rounded-md" />
+            <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-4 font-serif text-2xl text-white hover:opacity-80 font-bold" aria-label="Think in English - Home">
+              <img src="/logo_transparent.png" alt="Think in English Logo" className="h-16 w-16 object-contain rounded-md flex-shrink-0" />
               <span><span className="text-gold">Think</span> in English</span>
             </button>
-            <p className="mt-2 text-sm text-white">Unravel your journey of English</p>
-            <div className="mt-4 text-xs leading-6 text-white/50">
+            <p className="mt-3 text-sm text-white/70">Unravel your journey of English</p>
+          </div>
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-white/50 mb-3">Contact</p>
+            <div className="text-sm leading-6 text-white/80">
               <p>Phone: +91 89212 33005</p>
               <p>Email: hello@thinkinenglish.in</p>
             </div>
-          </div>
-          <div className="flex justify-start md:justify-end gap-3">
-            {socialIcons.map(([label, href, path]) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
-                aria-label={label}
-              >
-                <Icon path={path} className="h-4 w-4" />
-              </a>
-            ))}
+            <div className="mt-4 flex gap-3">
+              {socialIcons.map(([label, href, path]) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
+                  aria-label={label}
+                >
+                  <Icon path={path} className="h-3.5 w-3.5" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="mt-8 border-t border-white/10 pt-6 text-center text-sm text-white/50">
-          Copyright 2024 Think in English. Unravel Your Journey of English.
+        <div className="mt-8 border-t border-white/10 pt-4 text-center text-xs text-white/50">
+          Copyright &copy; 2024 Think in English. All rights reserved.
         </div>
       </div>
     </footer>
@@ -1268,34 +1290,18 @@ function Footer() {
 
 function FloatingWhatsApp() {
   return (
-    <>
-      <motion.a
-        href="https://wa.me/918921233005"
-        target="_blank"
-        rel="noopener noreferrer"
-
-        whileTap={{ scale: 0.98 }}
-        className="fixed bottom-5 right-5 z-50 hidden h-14 w-14 items-center justify-center rounded-full bg-gold text-navy shadow-sm md:inline-flex hover:bg-gold/90 transition-colors"
-        aria-label="Chat on WhatsApp"
-      >
-        <Icon path={icons.chat} className="h-6 w-6" />
-      </motion.a>
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-navy/95 backdrop-blur-md px-4 py-3 md:hidden">
-        <div className="mx-auto flex w-full max-w-md gap-3">
-          <a href="#contact" className="flex-1 rounded-full bg-white px-4 py-3 text-center text-base font-extrabold uppercase tracking-[0.08em] text-navy">
-            Book Demo
-          </a>
-          <a
-            href="https://wa.me/918921233005"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 rounded-full border border-white/20 bg-white/5 px-4 py-3 text-center text-base font-extrabold uppercase tracking-[0.08em] text-white"
-          >
-            WhatsApp
-          </a>
-        </div>
-      </div>
-    </>
+    <motion.a
+      href="https://wa.me/918921233005"
+      target="_blank"
+      rel="noopener noreferrer"
+      whileTap={{ scale: 0.98 }}
+      className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gold text-navy shadow-sm hover:bg-gold/90 transition-colors"
+      aria-label="Chat on WhatsApp"
+    >
+      <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12.004 2c-5.51 0-9.993 4.483-9.993 9.993 0 1.763.457 3.49 1.332 5.016L2 22l5.127-1.346c1.472.802 3.123 1.226 4.877 1.226 5.511 0 9.994-4.483 9.994-9.993C21.998 6.483 17.514 2 12.004 2zm5.244 13.021c-.287.41-.836.758-1.36.953-.41.154-.923.277-2.605-.42-2.144-.892-3.477-3.067-3.58-3.21-.1-.133-.825-1.097-.825-2.092 0-.995.523-1.482.708-1.677.185-.195.4-.246.533-.246.133 0 .267.005.37.01.112.005.266-.046.415.318.154.38.528 1.282.574 1.374.046.092.077.2.015.323-.062.123-.123.195-.19.277-.067.077-.144.17-.205.236-.067.072-.138.15-.06.287.077.133.344.564.738.913.507.451.933.595 1.066.661.133.067.21.057.287-.03.077-.093.333-.39.42-.523.087-.133.175-.113.298-.067.123.046.779.37.913.436.133.066.22.1.251.154.03.05.03.3-.256.713z"/>
+      </svg>
+    </motion.a>
   );
 }
 

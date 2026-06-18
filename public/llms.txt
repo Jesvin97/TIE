@@ -23,4 +23,4 @@ Think in English specializes in personalized, one-on-one, and small-group traini
 
 - **WhatsApp & Call**: [+91 89212 33005](https://wa.me/918921233005)
 - **Email**: [hello@thinkinenglish.in](mailto:hello@thinkinenglish.in)
-- **API Endpoint**: `/api/inquiry` - Accepts `POST` requests containing `user_name`, `user_phone`, `user_email`, `message`, and `exam_date` to submit direct inquiries.
+- **Inquiry Form**: Located at `/ #contact`, routes submitted details (Name, WhatsApp, Email, Struggle, Exam Date) directly to a pre-filled WhatsApp message redirecting to the founder's WhatsApp.

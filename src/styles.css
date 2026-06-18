@@ -60,10 +60,6 @@
   }
 
   @media (max-width: 767px) {
-    body {
-      padding-bottom: 82px;
-    }
-
     body::before {
       display: none;
     }
@@ -75,6 +71,10 @@
     select {
       touch-action: manipulation;
     }
+  }
+
+  p {
+    @apply leading-relaxed;
   }
 }
 
@@ -90,7 +90,7 @@
   }
 
   .gold-glow {
-    box-shadow: 0 0 0 1px rgba(173, 151, 89, 0.18), 0 16px 44px rgba(173, 151, 89, 0.18);
+    box-shadow: 0 0 0 1px rgba(173, 151, 89, 0.25), 0 8px 30px rgba(173, 151, 89, 0.15);
   }
 
   .shimmer-line::before {
@@ -110,10 +110,17 @@
   .marquee-track {
     width: max-content;
     animation: marquee 30s linear infinite;
+    will-change: transform;
   }
 
   .marquee-wrap:hover .marquee-track {
     animation-play-state: paused;
+  }
+
+  /* Interactive validation state outlines */
+  input:invalid:not(:placeholder-shown),
+  textarea:invalid:not(:placeholder-shown) {
+    border-color: rgba(220, 38, 38, 0.5) !important;
   }
 }
 
@@ -135,4 +142,116 @@
   .marquee-track {
     animation: none;
   }
+}
+
+@media print {
+  /* Force all elements to inherit white/transparent background and dark blue text */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #013648 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #013648 !important;
+  }
+  
+  body::before {
+    display: none !important;
+  }
+
+  /* Override all text elements to be deep navy */
+  h1, h2, h3, h4, h5, h6, p, span, a, button, li, strong, em, div {
+    color: #013648 !important;
+  }
+
+  /* Keep gold accents readable on white */
+  .text-gold, span.text-gold, span.text-goldTint {
+    color: #ad9759 !important;
+    font-weight: 700 !important;
+  }
+
+  /* Apply thin gray borders and light gray backgrounds to cards for print structure */
+  .bg-white\/5,
+  .bg-white\/10,
+  .bg-navy\/95,
+  .bg-white,
+  .rounded-xl,
+  .p-4,
+  .p-6,
+  .p-8,
+  .p-10 {
+    background: #f8fafc !important;
+    border: 1px solid rgba(1, 54, 72, 0.15) !important;
+  }
+
+  /* Ensure SVG icons print correctly */
+  svg, svg path {
+    stroke: #013648 !important;
+    fill: none !important;
+  }
+
+  /* Hide decorative floating particles, blur circles, and interactive widgets */
+  .blur-3xl,
+  .absolute.inset-0.hidden.md\:block,
+  .fixed,
+  iframe,
+  button,
+  .floating-whatsapp-btn {
+    display: none !important;
+  }
+
+  /* Optimize images for print to save ink */
+  img {
+    max-height: 250px !important;
+    filter: grayscale(100%) !important;
+    border-radius: 8px !important;
+  }
+
+  /* Adjust margins for printing pages */
+  body {
+    padding: 0 !important;
+    margin: 1.5cm !important;
+  }
+
+  /* Page break rules for clean document structure */
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  section, .rounded-xl {
+    page-break-inside: avoid;
+  }
+}
+
+/* Custom scrollbar to match the premium dark theme */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #012a38;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(173, 151, 89, 0.4);
+  border-radius: 5px;
+  border: 2px solid #012a38;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(173, 151, 89, 0.6);
+}
+
+/* Accessible focus outline styles */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #ad9759 !important;
+  outline-offset: 2px;
 }
