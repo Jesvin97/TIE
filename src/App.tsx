@@ -660,6 +660,19 @@ function TrustStrip() {
             </div>
           ))}
         </div>
+        <div className="mt-8 pt-4 border-t border-white/5 flex justify-start">
+          <a
+            href="https://wa.me/918921233005?text=Hi!%20I'd%20like%20to%20discuss%20coaching%20with%20you."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-2 text-sm font-bold text-gold hover:opacity-80 transition-opacity"
+          >
+            Talk to a Coach
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current transition-transform duration-300 group-hover:translate-x-1" strokeWidth="2.5" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
       </div>
     </section>
   );
@@ -793,6 +806,24 @@ function WhySection() {
             );
           })}
         </div>
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mt-12 flex justify-center"
+        >
+          <motion.a
+            whileTap={{ scale: 0.98 }}
+            href="https://wa.me/918921233005?text=Hi!%20I'd%20like%20to%20discuss%20my%20fluency%20goals%20and%20start%20my%20trial."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-gold bg-white/5 px-7 py-3.5 text-xs uppercase tracking-wider font-extrabold text-white shadow-sm transition hover:bg-white/10"
+          >
+            Discuss Your Fluency Goals
+            <Icon path={icons.arrow} className="h-3.5 w-3.5" />
+          </motion.a>
+        </motion.div>
       </div>
     </section>
   );
@@ -1040,6 +1071,24 @@ function FormatSection() {
             </p>
           </motion.div>
         </div>
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mt-12 flex justify-center"
+        >
+          <motion.a
+            whileTap={{ scale: 0.98 }}
+            href="https://wa.me/918921233005?text=Hi!%20I'd%20like%20to%20check%20available%20slots%20for%20the%20weekly%20coaching%20sessions."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold px-8 py-4 text-sm font-bold text-white shadow-sm transition hover:bg-gold/90 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Check Available Slots
+            <Icon path={icons.arrow} className="h-4 w-4" />
+          </motion.a>
+        </motion.div>
       </div>
     </section>
   );
