@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import {
   AnimatePresence,
   MotionConfig,
@@ -425,20 +425,18 @@ function NavBar() {
   return (
     <motion.header
       animate={{ 
-        paddingTop: scrolled ? 6 : 12, 
-        paddingBottom: scrolled ? 6 : 12,
+        paddingTop: scrolled ? 8 : 16, 
+        paddingBottom: scrolled ? 8 : 16,
         y: hideHeader ? -80 : 0
       }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-x-0 top-0 z-50 transition-colors duration-300"
+      className={[
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
+        scrolled ? "bg-navy/90 border-b border-white/10 backdrop-blur-lg shadow-sm" : "bg-transparent border-b border-transparent"
+      ].join(" ")}
     >
       <div className={pageContainer}>
-        <div
-          className={[
-            "flex items-center justify-between rounded-full border px-4 transition-all duration-300 md:px-6",
-            scrolled ? "bg-white/8 py-1.5 backdrop-blur-lg border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.4)]" : "bg-transparent py-2.5 border-transparent"
-          ].join(" ")}
-        >
+        <div className="flex items-center justify-between">
           <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-3.5 sm:gap-4.5 font-serif text-3xl sm:text-[32px] md:text-[40px] font-semibold md:font-bold tracking-[0.01em] transition-colors text-white hover:opacity-80" aria-label="Think in English - Home">
             <img src="/logo_transparent.png" alt="Think in English Logo" className="h-[72px] w-[72px] sm:h-[80px] sm:w-[80px] md:h-[96px] md:w-[96px] object-contain rounded-md flex-shrink-0" />
             <span><span className="text-gold">Think</span><span className="hidden min-[400px]:inline"> in English</span></span>
@@ -485,7 +483,7 @@ function Hero() {
   const { scrollY } = useScroll();
   const yImage = useTransform(scrollY, [0, 500], [0, 40]);
   return (
-    <section className="relative overflow-hidden pb-6 pt-20 md:pb-8 md:pt-24 lg:pt-28 bg-navy">
+    <section className="relative overflow-hidden pb-6 pt-32 md:pb-8 md:pt-36 lg:pt-44 bg-navy">
       <motion.div
         animate={
           isE2E
@@ -1097,53 +1095,6 @@ function FAQSection() {
 }
 
 function ContactSection() {
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const form = useRef<HTMLFormElement>(null);
-
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-    const currentForm = form.current;
-    if (!currentForm) return;
-
-    setLoading(true);
-
-    const formData = new FormData(currentForm);
-    const userName = (formData.get('user_name') || '').toString().trim();
-    const userPhone = (formData.get('user_phone') || '').toString().trim();
-    const userEmail = (formData.get('user_email') || '').toString().trim();
-    const message = (formData.get('message') || '').toString().trim();
-    const examDate = (formData.get('exam_date') || 'Not specified').toString().trim();
-
-    const text = `Hi, I would like to book a demo class. Here are my details:
-- Name: ${userName}
-- WhatsApp: ${userPhone}
-- Email: ${userEmail}
-- Struggling with: ${message}
-- Target Exam Date: ${examDate}`;
-
-    const encodedText = encodeURIComponent(text);
-    const whatsappUrl = `https://wa.me/918921233005?text=${encodedText}`;
-
-    setLoading(false);
-    setSubmitted(true);
-    currentForm.reset();
-    globalThis.setTimeout(() => setSubmitted(false), 5000);
-
-    // Open WhatsApp Web/App
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-  };
-
-  const getButtonText = () => {
-    if (loading) return "Redirecting...";
-    if (submitted) return "WhatsApp Chat Opened";
-    return "Send details to WhatsApp";
-  };
-
-  const getButtonIcon = () => {
-    return submitted ? icons.check : icons.arrow;
-  };
-
   return (
     <section id="contact" className={`section-shell ${sectionSpacing}`}>
       <div className={`relative ${pageContainer}`}>
@@ -1170,68 +1121,17 @@ function ContactSection() {
                 </p>
 
                 <motion.a
-                  href="https://wa.me/918714278397?text=Hi%2C%20I%20would%20like%20to%20book%20a%20demo%20class.%20Please%20share%20available%20slots."
+                  whileTap={{ scale: 0.98 }}
+                  href="https://wa.me/918921233005?text=Hi!%20I%20would%20like%20to%20start%20with%20a%20demo%20class"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-8 flex min-h-12 w-full items-center justify-center gap-3 rounded-full border border-gold bg-white/5 px-8 py-4 text-sm font-bold text-white backdrop-blur-md shadow-[0_12px_30px_rgba(1,54,72,0.08)] transition-all hover:bg-white/10 sm:w-fit"
+                  className="mt-8 inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-full bg-gold px-8 py-4 text-sm font-bold text-white shadow-[0_4px_12px_rgba(182,144,99,0.2)] transition-all hover:bg-gold/90 hover:scale-[1.02] active:scale-[0.98] sm:w-fit"
                 >
                   Message me on WhatsApp
                   <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12.004 2c-5.51 0-9.993 4.483-9.993 9.993 0 1.763.457 3.49 1.332 5.016L2 22l5.127-1.346c1.472.802 3.123 1.226 4.877 1.226 5.511 0 9.994-4.483 9.994-9.993C21.998 6.483 17.514 2 12.004 2zm5.244 13.021c-.287.41-.836.758-1.36.953-.41.154-.923.277-2.605-.42-2.144-.892-3.477-3.067-3.58-3.21-.1-.133-.825-1.097-.825-2.092 0-.995.523-1.482.708-1.677.185-.195.4-.246.533-.246.133 0 .267.005.37.01.112.005.266-.046.415.318.154.38.528 1.282.574 1.374.046.092.077.2.015.323-.062.123-.123.195-.19.277-.067.077-.144.17-.205.236-.067.072-.138.15-.06.287.077.133.344.564.738.913.507.451.933.595 1.066.661.133.067.21.057.287-.03.077-.093.333-.39.42-.523.087-.133.175-.113.298-.067.123.046.779.37.913.436.133.066.22.1.251.154.03.05.03.3-.256.713z"/>
                   </svg>
                 </motion.a>
-
-                <form ref={form} onSubmit={handleSubmit} className="mt-10 grid gap-6">
-                  <p className="flex items-center gap-4 text-sm font-extrabold uppercase tracking-[0.12em] text-white/65">
-                    <span className="flex-1 h-px bg-white/25" />
-                    <span className="mx-3">Or submit details via WhatsApp form</span>
-                    <span className="flex-1 h-px bg-white/25" />
-                  </p>
-                  {[
-                    ["Your Name", "text", "How should I address you", "user_name"],
-                    ["WhatsApp Number", "tel", "So I can reach out directly", "user_phone"],
-                    ["Your Email ID", "email", "To send course details and updates", "user_email"],
-                    ["What are you struggling with?", "text", "Example: IELTS Writing or spoken hesitation", "message"]
-                  ].map(([label, type, placeholder, name]) => (
-                    <label key={label} className="grid gap-2 text-sm font-bold text-white">
-                      {label}
-                      <input
-                        name={name}
-                        type={type}
-                        placeholder={placeholder}
-                        required
-                        onInput={name === "user_phone" ? (e) => { e.currentTarget.value = e.currentTarget.value.replace(/[^0-9+]/g, '') } : undefined}
-                        className="rounded-xl border border-white/20 bg-white/8 px-5 py-4 text-sm font-medium text-white placeholder-white/60 outline-none transition-all focus:-translate-y-[2px] focus:border-gold focus:ring-1 focus:ring-gold/30 focus:shadow-[0_8px_20px_rgba(182,144,99,0.18)]"
-                      />
-                    </label>
-                  ))}
-
-                  <label className="grid gap-2 text-sm font-bold text-white">
-                    Exam Date (Optional)
-                    <input
-                      name="exam_date"
-                      type="text"
-                      placeholder="Example: August 2026 or No exam planned"
-                      className="rounded-xl border border-white/20 bg-white/8 px-5 py-4 text-sm font-medium text-white placeholder-white/60 outline-none transition-all focus:-translate-y-[2px] focus:border-gold focus:ring-1 focus:ring-gold/30 focus:shadow-[0_8px_20px_rgba(182,144,99,0.18)]"
-                    />
-                  </label>
-
-                  <motion.button
-                    whileTap={{ scale: 0.99 }}
-                    type="submit"
-                    disabled={loading || submitted}
-                    className={[
-                      "mt-4 inline-flex items-center justify-center gap-3 rounded-full px-8 py-5 text-[13px] font-extrabold uppercase tracking-[0.16em] shadow-sm transition-colors",
-                      submitted ? "bg-white text-navy" : "bg-gold text-white hover:bg-gold/90",
-                      loading ? "opacity-70 cursor-not-allowed" : ""
-                    ].join(" ")}
-                  >
-                    {getButtonText()}
-                    <Icon path={getButtonIcon()} className="h-4 w-4" />
-                  </motion.button>
-                  <p className="text-center text-[13px] font-semibold text-white/50">I personally read and reply within hours.</p>
-                </form>
-
               </div>
             </div>
           </div>
@@ -1248,30 +1148,32 @@ function Footer() {
   ] as const;
 
   return (
-    <footer className="border-t border-white/10 bg-navy py-8">
+    <footer className="border-t border-white/10 bg-navy py-6">
       <div className={pageContainer}>
-        <div className="grid gap-8 sm:grid-cols-2 items-start text-left">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 text-left">
           <div>
-            <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-4 font-serif text-2xl text-white hover:opacity-80 font-bold" aria-label="Think in English - Home">
-              <img src="/logo_transparent.png" alt="Think in English Logo" className="h-16 w-16 object-contain rounded-md flex-shrink-0" />
+            <button onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-3 font-serif text-xl text-white hover:opacity-80 font-bold" aria-label="Think in English - Home">
+              <img src="/logo_transparent.png" alt="Think in English Logo" className="h-10 w-10 object-contain rounded-md flex-shrink-0" />
               <span><span className="text-gold">Think</span> in English</span>
             </button>
-            <p className="mt-3 text-sm text-white/70">Unravel your journey of English</p>
+            <p className="mt-1.5 text-xs text-white/60">Unravel your journey of English</p>
           </div>
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-white/50 mb-3">Contact</p>
-            <div className="text-sm leading-6 text-white/80">
-              <p>Phone: +91 89212 33005</p>
-              <p>Email: hello@thinkinenglish.in</p>
+          
+          <div className="flex flex-col sm:items-end gap-3">
+            <div className="text-xs leading-5 text-white/70 sm:text-right">
+              <span>Phone: +91 89212 33005</span>
+              <span className="hidden sm:inline mx-2">•</span>
+              <br className="sm:hidden" />
+              <span>Email: hello@thinkinenglish.in</span>
             </div>
-            <div className="mt-4 flex gap-3">
+            <div className="flex gap-2.5">
               {socialIcons.map(([label, href, path]) => (
                 <a
                   key={label}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
                   aria-label={label}
                 >
                   <Icon path={path} className="h-3.5 w-3.5" />
@@ -1280,7 +1182,8 @@ function Footer() {
             </div>
           </div>
         </div>
-        <div className="mt-8 border-t border-white/10 pt-4 text-center text-xs text-white/50">
+        
+        <div className="mt-6 border-t border-white/5 pt-4 text-center text-[11px] text-white/40">
           Copyright &copy; 2024 Think in English. All rights reserved.
         </div>
       </div>
